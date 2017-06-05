@@ -9,9 +9,11 @@
 #import "AKRuleManager.h"
 #import "NSMutableDictionary+AKRouter.h"
 
-NSString * const AKRuleManagerRuleModeKey = @"AKRuleManagerRuleModeKey";
 NSString * const AKRuleManagerErrorDomain = @"AKRuleManagerErrorDomain";
 NSString * const AKRuleManagerErrorMessageKey = @"AKRuleManagerErrorMessageKey";
+
+NSString * const AKRuleManagerHostWildcardKey = @"*";
+NSString * const AKRuleManagerPathWildcardKey = @"/*";
 
 @interface AKRuleManager()
 
@@ -52,6 +54,24 @@ NSString * const AKRuleManagerErrorMessageKey = @"AKRuleManagerErrorMessageKey";
 
 #pragma mark - Public Method
 
+static NSString *AKRuleManagerScheme = nil;
++ (void)setScheme:(NSString *)scheme {
+    AKRuleManagerScheme = scheme;
+}
+
++ (NSString *)scheme {
+    return AKRuleManagerScheme;
+}
+
+static NSString *AKRuleManagerHost = nil;
++ (void)setHost:(NSString *)host {
+    AKRuleManagerHost = host;
+}
+
++ (NSString *)host {
+    return AKRuleManagerHost;
+}
+
 + (BOOL)registerRule:(id<AKRuleProtocol>)rule error:(NSError **)error {
     dispatch_semaphore_wait(self.manager.semaphore, DISPATCH_TIME_FOREVER);
     NSMutableArray<id<AKRuleProtocol>> *rulesM = [self.manager.responseChainDicM responseChainsForRule:rule.identifier];
@@ -61,7 +81,7 @@ NSString * const AKRuleManagerErrorMessageKey = @"AKRuleManagerErrorMessageKey";
         if(rulesM.lastObject.priority == AKRulePriorityExclusive) {
             *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
                                                  code:0
-                                             userInfo:@{AKRuleManagerErrorMessageKey : @"已有Exclusive权限规则"}];
+                                             userInfo:@{AKRuleManagerErrorMessageKey : @"已有Exclusive规则"}];
             dispatch_semaphore_signal(self.manager.semaphore);
             return NO;
         }
@@ -106,36 +126,66 @@ NSString * const AKRuleManagerErrorMessageKey = @"AKRuleManagerErrorMessageKey";
                  failure:(AKRuleResponseFailure)failure {
     if(![schemeURL isKindOfClass:[NSString class]]
        || !schemeURL.length) {
-        failure(nil);
+        NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                             code:0
+                                         userInfo:@{AKRuleManagerErrorMessageKey : @"schemeURL类型错误"}];
+        failure(error);
         return;
     }
     
     NSURL *url = [NSURL URLWithString:schemeURL];
     if(!url) {
-        failure(nil);
+        NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                             code:0
+                                         userInfo:@{AKRuleManagerErrorMessageKey : @"schemeURL格式错误"}];
+        failure(error);
         return;
     }
     
-    NSString *identifier = url.path;
+    NSString *scheme = url.scheme;
+    if([self.scheme isKindOfClass:[NSString class]]
+       && self.scheme.length) {
+        if(![scheme isEqualToString:self.scheme]) {
+            NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                                 code:0
+                                             userInfo:@{AKRuleManagerErrorMessageKey : @"不能处理当前schemeURL"}];
+            failure(error);
+            
+            if([UIApplication.sharedApplication canOpenURL:url]) {
+                [UIApplication.sharedApplication openURL:url];
+            }
+        }
+    }
+    
+    NSString *identifier = nil;
+    AKRuleMode mode = AKRuleModeExact;
+    NSString *path = url.path;
+    if([path hasPrefix:AKRuleManagerPathWildcardKey]) {
+        identifier = [path stringByReplacingOccurrencesOfString:AKRuleManagerPathWildcardKey withString:@""];
+        mode = AKRuleModeBroadcast;
+    }
+    
     NSString *query = url.query;
     NSArray<NSString *> *queryItems = [query componentsSeparatedByString:@"&"];
-    
-    __block AKRuleMode mode = AKRuleModeExact;
     NSMutableDictionary *paramsM = [NSMutableDictionary dictionary];
     [queryItems enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSArray<NSString *> *pairs = [obj componentsSeparatedByString:@"="];
-        if([pairs.firstObject isEqualToString:AKRuleManagerRuleModeKey]) {
-            mode = [pairs.lastObject integerValue];
-        } else {
-            paramsM[pairs.firstObject] = pairs.lastObject;
-        }
+        paramsM[pairs.firstObject] = pairs.lastObject;
     }];
     
     [self requestRule:identifier
                 param:[paramsM copy]
                  mode:mode
               success:success
-              failure:failure];
+              failure:^(NSError *error) {
+                  failure(error);
+                  
+                  if([url.host isEqualToString:AKRuleManagerHostWildcardKey]) {
+                      if([UIApplication.sharedApplication canOpenURL:url]) {
+                          [UIApplication.sharedApplication openURL:url];
+                      }
+                  }
+              }];
 }
 
 + (void)requestRule:(NSString *)identifier
@@ -170,7 +220,7 @@ NSString * const AKRuleManagerErrorMessageKey = @"AKRuleManagerErrorMessageKey";
     if(!someoneCanHandle) {
         NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
                                      code:0
-                                 userInfo:@{AKRuleManagerErrorMessageKey : @"未找到可处理对象"}];
+                                 userInfo:@{AKRuleManagerErrorMessageKey : @"未找到能够处理当前规则的对象"}];
         failure(error);
     }
 }

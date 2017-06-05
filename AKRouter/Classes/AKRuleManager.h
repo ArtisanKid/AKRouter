@@ -14,11 +14,17 @@ typedef NS_ENUM(NSUInteger, AKRuleMode) {
     AKRuleModeBroadcast //广播
 };
 
-extern NSString * const AKRuleManagerRuleModeKey;
 extern NSString * const AKRuleManagerErrorDomain;
 extern NSString * const AKRuleManagerErrorMessageKey;
 
+//用于支持URL通配信息
+extern NSString * const AKRuleManagerHostWildcardKey;
+extern NSString * const AKRuleManagerPathWildcardKey;
+
 @interface AKRuleManager : NSObject
+
+@property (class, nonatomic, strong) NSString *scheme;
+@property (class, nonatomic, strong) NSString *host;
 
 /**
  注册规则
