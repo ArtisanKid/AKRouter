@@ -3,6 +3,9 @@ use_frameworks!
 target 'AKRouter_Example' do
   pod 'AKRouter', :path => '../'
 
+  pod 'Masonry'
+  pod 'BlocksKit'
+  
   target 'AKRouter_Tests' do
     inherit! :search_paths
 

@@ -1,28 +1,28 @@
 //
-//  AKViewController.m
+//  AKHighPriorityController.m
 //  AKRouter
 //
-//  Created by Freud on 05/31/2017.
-//  Copyright (c) 2017 Freud. All rights reserved.
+//  Created by 李翔宇 on 2017/6/5.
+//  Copyright © 2017年 Freud. All rights reserved.
 //
 
-#import "AKViewController.h"
+#import "AKHighPriorityController.h"
 #import "AKRule.h"
 #import "AKTestController.h"
 #import "AKHighPriorityController.h"
 #import "AKLowPriorityController.h"
 
-@interface AKViewController ()<AKRuleResponderProtocol>
+@interface AKHighPriorityController ()<AKRuleResponderProtocol>
 
 @end
 
-@implementation AKViewController
+@implementation AKHighPriorityController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-    self.title = @"Default Priority";
+    // Do any additional setup after loading the view, typically from a nib.
+    self.title = @"High Priority";
     
     self.view.backgroundColor = UIColor.whiteColor;
     
@@ -69,7 +69,7 @@
     }];
     
     [pushHighPriorityButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(pushTestButton.mas_bottom).mas_offset(20.);
+        make.top.mas_equalTo(pushTestButton.mas_bottom).offset(20.);
         make.height.mas_equalTo(50.);
         make.leading.mas_equalTo(0.);
     }];
@@ -81,7 +81,7 @@
     }];
     
     [alertButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(pushLowPriorityButton.mas_bottom).offset(20.);
+        make.top.mas_equalTo(pushLowPriorityButton.mas_bottom).mas_offset(20.);
         make.leading.mas_equalTo(0.);
         make.height.mas_equalTo(50.);
     }];
@@ -127,7 +127,7 @@
         AKRule *rule = [[AKRule alloc] init];
         rule.identifier = AKRuleAlert;
         rule.target = self;
-        rule.priority = AKRulePriorityDefault;
+        rule.priority = AKRulePriorityHigh;
         
         [AKRuleManager registerRule:rule error:nil];
     } else {
@@ -145,7 +145,7 @@
         AKRule *rule = [[AKRule alloc] init];
         rule.identifier = AKRuleChangeColor;
         rule.target = self;
-        rule.priority = AKRulePriorityDefault;
+        rule.priority = AKRulePriorityHigh;
         
         [AKRuleManager registerRule:rule error:nil];
     } else {
@@ -163,7 +163,7 @@
         AKRule *rule = [[AKRule alloc] init];
         rule.identifier = AKRuleSum;
         rule.target = self;
-        rule.priority = AKRulePriorityDefault;
+        rule.priority = AKRulePriorityHigh;
         
         [AKRuleManager registerRule:rule error:nil];
     } else {

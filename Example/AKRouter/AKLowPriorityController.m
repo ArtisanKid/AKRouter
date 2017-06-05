@@ -1,28 +1,28 @@
 //
-//  AKViewController.m
+//  AKLowPriorityController.m
 //  AKRouter
 //
-//  Created by Freud on 05/31/2017.
-//  Copyright (c) 2017 Freud. All rights reserved.
+//  Created by 李翔宇 on 2017/6/5.
+//  Copyright © 2017年 Freud. All rights reserved.
 //
 
-#import "AKViewController.h"
+#import "AKLowPriorityController.h"
 #import "AKRule.h"
 #import "AKTestController.h"
 #import "AKHighPriorityController.h"
 #import "AKLowPriorityController.h"
 
-@interface AKViewController ()<AKRuleResponderProtocol>
+@interface AKLowPriorityController ()<AKRuleResponderProtocol>
 
 @end
 
-@implementation AKViewController
+@implementation AKLowPriorityController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-    self.title = @"Default Priority";
+    // Do any additional setup after loading the view, typically from a nib.
+    self.title = @"Low Priority";
     
     self.view.backgroundColor = UIColor.whiteColor;
     
@@ -127,7 +127,7 @@
         AKRule *rule = [[AKRule alloc] init];
         rule.identifier = AKRuleAlert;
         rule.target = self;
-        rule.priority = AKRulePriorityDefault;
+        rule.priority = AKRulePriorityLow;
         
         [AKRuleManager registerRule:rule error:nil];
     } else {
@@ -145,7 +145,7 @@
         AKRule *rule = [[AKRule alloc] init];
         rule.identifier = AKRuleChangeColor;
         rule.target = self;
-        rule.priority = AKRulePriorityDefault;
+        rule.priority = AKRulePriorityLow;
         
         [AKRuleManager registerRule:rule error:nil];
     } else {
@@ -163,7 +163,7 @@
         AKRule *rule = [[AKRule alloc] init];
         rule.identifier = AKRuleSum;
         rule.target = self;
-        rule.priority = AKRulePriorityDefault;
+        rule.priority = AKRulePriorityLow;
         
         [AKRuleManager registerRule:rule error:nil];
     } else {

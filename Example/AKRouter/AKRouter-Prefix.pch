@@ -1,16 +1,16 @@
 //
-//  Prefix header
+//  AKRouter-Prefix.pch
+//  AKRouter
 //
-//  The contents of this file are implicitly included at the beginning of every source file.
+//  Created by 李翔宇 on 2017/6/5.
+//  Copyright © 2017年 Freud. All rights reserved.
 //
 
-#import <Availability.h>
+#ifndef AKRouter_Prefix_pch
+#define AKRouter_Prefix_pch
 
-#ifndef __IPHONE_5_0
-#warning "This project uses features only available in iOS SDK 5.0 and later."
-#endif
+#import <Masonry/Masonry.h>
+#import <AKRouter/AKRuleManager.h>
+#import "AKRuleConstants.h"
 
-#ifdef __OBJC__
-    @import UIKit;
-    @import Foundation;
-#endif
+#endif /* AKRouter_Prefix_pch */

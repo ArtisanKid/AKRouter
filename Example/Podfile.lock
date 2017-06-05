@@ -1,0 +1,36 @@
+PODS:
+  - AKRouter (0.1.0)
+  - BlocksKit (2.2.5):
+    - BlocksKit/All (= 2.2.5)
+  - BlocksKit/All (2.2.5):
+    - BlocksKit/Core
+    - BlocksKit/DynamicDelegate
+    - BlocksKit/MessageUI
+    - BlocksKit/UIKit
+  - BlocksKit/Core (2.2.5)
+  - BlocksKit/DynamicDelegate (2.2.5)
+  - BlocksKit/MessageUI (2.2.5):
+    - BlocksKit/Core
+    - BlocksKit/DynamicDelegate
+  - BlocksKit/UIKit (2.2.5):
+    - BlocksKit/Core
+    - BlocksKit/DynamicDelegate
+  - Masonry (1.0.2)
+
+DEPENDENCIES:
+  - AKRouter (from `../`)
+  - BlocksKit
+  - Masonry
+
+EXTERNAL SOURCES:
+  AKRouter:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  AKRouter: 9029feb7ac6b7982d816b2b409f963ed96ea441a
+  BlocksKit: 7f422b971407001178d181a43b99014ea2591fe6
+  Masonry: 7c429b56da9d4ee0bbb3ed77a5ea710d6a5df39e
+
+PODFILE CHECKSUM: 60f5691b6b3880746d2c945d0ca9c272249081b3
+
+COCOAPODS: 1.2.1

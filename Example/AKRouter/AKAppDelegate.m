@@ -7,12 +7,19 @@
 //
 
 #import "AKAppDelegate.h"
+#import "AKViewController.h"
 
 @implementation AKAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    [self.window makeKeyAndVisible];
+    
+    UINavigationController *root = [[UINavigationController alloc] initWithRootViewController:[[AKViewController alloc] init]];
+    self.window.rootViewController = root;
+    
     return YES;
 }
 
