@@ -17,6 +17,8 @@ typedef NS_ENUM(NSUInteger, AKRulePriority) {
     AKRulePriorityExclusive = NSUIntegerMax,// 排他 (如果已有Exclusive优先级，则注册失败；若成功，任何其他已注册优先级失效；若成功，再注册任何优先级全部失败)
 };
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol AKRuleProtocol <NSObject>
 
 @property (nonatomic, assign) NSString *identifier;
@@ -24,3 +26,5 @@ typedef NS_ENUM(NSUInteger, AKRulePriority) {
 @property (nonatomic, assign) AKRulePriority priority;
 
 @end
+
+NS_ASSUME_NONNULL_END

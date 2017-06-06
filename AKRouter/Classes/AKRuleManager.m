@@ -8,6 +8,7 @@
 
 #import "AKRuleManager.h"
 #import "NSMutableDictionary+AKRouter.h"
+#import "AKRuleLimitManager.h"
 
 NSString * const AKRuleManagerErrorDomain = @"AKRuleManagerErrorDomain";
 NSString * const AKRuleManagerErrorMessageKey = @"AKRuleManagerErrorMessageKey";
@@ -74,14 +75,44 @@ static NSString *AKRuleManagerHost = nil;
 
 + (BOOL)registerRule:(id<AKRuleProtocol>)rule error:(NSError **)error {
     dispatch_semaphore_wait(self.manager.semaphore, DISPATCH_TIME_FOREVER);
-    NSMutableArray<id<AKRuleProtocol>> *rulesM = [self.manager.responseChainDicM responseChainsForRule:rule.identifier];
+    if(![rule.identifier isKindOfClass:[NSString class]]
+       || !rule.identifier.length) {
+        *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                     code:0
+                                 userInfo:@{AKRuleManagerErrorMessageKey : @"identifier类型错误"}];
+        dispatch_semaphore_signal(self.manager.semaphore);
+        return NO;
+    }
+    
+    if(!rule.target) {
+        *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                     code:0
+                                 userInfo:@{AKRuleManagerErrorMessageKey : @"target为空"}];
+        dispatch_semaphore_signal(self.manager.semaphore);
+        return NO;
+    }
+    
+    if(![AKRuleLimitManager checkClass:[rule.target class] rule:rule.identifier]) {
+        *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                     code:0
+                                 userInfo:@{AKRuleManagerErrorMessageKey : @"没有注册权限"}];
+        dispatch_semaphore_signal(self.manager.semaphore);
+        return NO;
+    }
+    
+    NSMutableArray<id<AKRuleProtocol>> *rulesM = [self.manager.responseChainDicM ak_routerArrayForKey:rule.identifier];
     
     //如果已经注册排他，那么不能再次注册
     if(rule.priority == AKRulePriorityExclusive) {
-        if(rulesM.lastObject.priority == AKRulePriorityExclusive) {
+        id<AKRuleProtocol> lastRule = rulesM.lastObject;
+        if(lastRule.priority == AKRulePriorityExclusive) {
+            if(lastRule.target) {
+                
+            }
+            
             *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
-                                                 code:0
-                                             userInfo:@{AKRuleManagerErrorMessageKey : @"已有Exclusive规则"}];
+                                         code:0
+                                     userInfo:@{AKRuleManagerErrorMessageKey : @"已有Exclusive优先级对象"}];
             dispatch_semaphore_signal(self.manager.semaphore);
             return NO;
         }
@@ -109,8 +140,7 @@ static NSString *AKRuleManagerHost = nil;
 + (void)cancelRule:(NSString *)identifier
             target:(id<AKRuleResponderProtocol>)target {
     dispatch_semaphore_wait(self.manager.semaphore, DISPATCH_TIME_FOREVER);
-    NSMutableArray<id<AKRuleProtocol>> *rulesM = [self.manager.responseChainDicM responseChainsForRule:identifier];
-    
+    NSMutableArray<id<AKRuleProtocol>> *rulesM = [self.manager.responseChainDicM ak_routerArrayForKey:identifier];
     for(NSInteger i = rulesM.count - 1; i >= 0; i--) {
         id<AKRuleProtocol> rule = rulesM[i];
         if(rule.target != target) {
@@ -145,6 +175,7 @@ static NSString *AKRuleManagerHost = nil;
     NSString *scheme = url.scheme;
     if([self.scheme isKindOfClass:[NSString class]]
        && self.scheme.length) {
+        //不是指定Scheme，尝试三方应用打开
         if(![scheme isEqualToString:self.scheme]) {
             NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
                                                  code:0
@@ -195,17 +226,32 @@ static NSString *AKRuleManagerHost = nil;
             failure:(AKRuleResponseFailure)failure {
     BOOL someoneCanHandle = NO;
     
-    NSArray<id<AKRuleProtocol>> *rules = [[self.manager.responseChainDicM responseChainsForRule:identifier] copy];
+    NSMutableArray<id<AKRuleProtocol>> *rulesM = [self.manager.responseChainDicM ak_routerArrayForKey:identifier];
+    NSArray<id<AKRuleProtocol>> *rules = [rulesM copy];
+    if(!rules.count) {
+        NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                             code:0
+                                         userInfo:@{AKRuleManagerErrorMessageKey : @"未找到能够处理当前规则的对象"}];
+        failure(error);
+        return;
+    }
+    
     for(NSInteger i = rules.count - 1; i >= 0; i--) {
         id<AKRuleResponderProtocol> target = rules[i].target;
         if(!target) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self cancelRule:identifier target:nil];
-            });
+            [rulesM removeObject:rules[i]];
             continue;
         }
         
         if(![target canHandleRule:identifier param:param]) {
+            if(rules[i].priority == AKRulePriorityExclusive) {
+                NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
+                                                     code:0
+                                                 userInfo:@{AKRuleManagerErrorMessageKey : @"已有Exclusive优先级对象，未能处理当前规则"}];
+                failure(error);
+                return;
+            }
+            
             continue;
         }
         
@@ -219,8 +265,8 @@ static NSString *AKRuleManagerHost = nil;
     
     if(!someoneCanHandle) {
         NSError *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
-                                     code:0
-                                 userInfo:@{AKRuleManagerErrorMessageKey : @"未找到能够处理当前规则的对象"}];
+                                             code:0
+                                         userInfo:@{AKRuleManagerErrorMessageKey : @"未找到能够处理当前规则的对象"}];
         failure(error);
     }
 }

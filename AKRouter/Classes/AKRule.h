@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "AKRuleProtocol.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface AKRule : NSObject <AKRuleProtocol>
 
 @property (nonatomic, assign) NSString *identifier;
@@ -16,3 +18,5 @@
 @property (nonatomic, assign) AKRulePriority priority;
 
 @end
+
+NS_ASSUME_NONNULL_END

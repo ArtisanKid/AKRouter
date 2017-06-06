@@ -10,17 +10,17 @@
 
 @implementation NSMutableDictionary (AKRouter)
 
-- (NSMutableArray<id<AKRuleProtocol>> *)responseChainsForRule:(NSString *)identifier {
-    if(!identifier.length) {
+- (NSMutableArray *)ak_routerArrayForKey:(id)key {
+    if(!key) {
         return nil;
     }
     
-    NSMutableArray *responseChains = self[identifier];
-    if(!responseChains) {
-        responseChains = [NSMutableArray array];
-        self[identifier] = responseChains;
+    NSMutableArray *array = self[key];
+    if(!array) {
+        array = [NSMutableArray array];
+        self[key] = array;
     }
-    return responseChains;
+    return array;
 }
 
 @end

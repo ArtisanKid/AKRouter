@@ -20,9 +20,6 @@
     UINavigationController *root = [[UINavigationController alloc] initWithRootViewController:[[AKViewController alloc] init]];
     self.window.rootViewController = root;
     
-    AKRuleManager.scheme = @"autohome";
-    AKRuleManager.scheme = @"autohome";
-    
     return YES;
 }
 

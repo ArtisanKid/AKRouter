@@ -8,10 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef void(^AKRuleResponseSuccess)(id result);
 typedef void(^AKRuleResponseFailure)(NSError *error);
 
 @protocol AKRuleResponderProtocol <NSObject>
+
+@required
 
 /**
  是否可以处理指定规则
@@ -44,3 +48,5 @@ typedef void(^AKRuleResponseFailure)(NSError *error);
 - (void)unexpectedCancelRule:(NSString *)identifier error:(NSError *)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

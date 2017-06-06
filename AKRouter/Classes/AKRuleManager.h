@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "AKRuleProtocol.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef NS_ENUM(NSUInteger, AKRuleMode) {
     AKRuleModeExact = 0, //精确
     AKRuleModeBroadcast //广播
@@ -49,7 +51,7 @@ extern NSString * const AKRuleManagerPathWildcardKey;
 /**
  请求schemeURL
 
- @param schemeURL 自定义的SchemeURL，autohome://\<App\>/\<plugin|module|business|...\>[/path][?key=value...]
+ @param schemeURL 自定义的SchemeURL，autohome://\<App\>/\/path[?key=value...]
  @param success 可能同步或者异步，由实现方控制
  @param failure 可能同步或者异步，由实现方控制
  */
@@ -73,3 +75,5 @@ extern NSString * const AKRuleManagerPathWildcardKey;
             failure:(AKRuleResponseFailure)failure;
 
 @end
+
+NS_ASSUME_NONNULL_END

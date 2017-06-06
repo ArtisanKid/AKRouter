@@ -9,8 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "AKRuleProtocol.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface NSMutableDictionary (AKRouter)
 
-- (NSMutableArray<id<AKRuleProtocol>> *)responseChainsForRule:(NSString *)identifier;
+- (NSMutableArray *)ak_routerArrayForKey:(id)key;
 
 @end
+
+NS_ASSUME_NONNULL_END
