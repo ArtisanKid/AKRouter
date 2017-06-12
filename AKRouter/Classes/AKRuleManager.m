@@ -8,7 +8,6 @@
 
 #import "AKRuleManager.h"
 #import "NSMutableDictionary+AKRouter.h"
-#import "AKRuleLimitManager.h"
 
 NSString * const AKRuleManagerErrorDomain = @"AKRuleManagerErrorDomain";
 NSString * const AKRuleManagerErrorMessageKey = @"AKRuleManagerErrorMessageKey";
@@ -88,14 +87,6 @@ static NSString *AKRuleManagerHost = nil;
         *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
                                      code:0
                                  userInfo:@{AKRuleManagerErrorMessageKey : @"target为空"}];
-        dispatch_semaphore_signal(self.manager.semaphore);
-        return NO;
-    }
-    
-    if(![AKRuleLimitManager checkClass:[rule.target class] rule:rule.identifier]) {
-        *error = [NSError errorWithDomain:AKRuleManagerErrorDomain
-                                     code:0
-                                 userInfo:@{AKRuleManagerErrorMessageKey : @"没有注册权限"}];
         dispatch_semaphore_signal(self.manager.semaphore);
         return NO;
     }

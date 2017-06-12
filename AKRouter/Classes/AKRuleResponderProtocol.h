@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^AKRuleResponseSuccess)(id result);
+typedef void(^AKRuleResponseSuccess)(id _Nullable result);
 typedef void(^AKRuleResponseFailure)(NSError *error);
 
 @protocol AKRuleResponderProtocol <NSObject>
